@@ -6,9 +6,10 @@ import { currencies } from "@/data/currencies";
 interface CurrencySearchProps {
     onSelectCurrency: (currency: string) => void;
     selectedCurrency?: string;
+    onClear?: () => void;
 }
 
-const CurrencySearch = ({ onSelectCurrency, selectedCurrency }: CurrencySearchProps) => {
+const CurrencySearch = ({ onSelectCurrency, selectedCurrency, onClear }: CurrencySearchProps) => {
     const [searchTerm, setSearchTerm] = useState("");
     const [filteredCurrencies, setFilteredCurrencies] = useState(currencies);
     const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -27,6 +28,7 @@ const CurrencySearch = ({ onSelectCurrency, selectedCurrency }: CurrencySearchPr
         setSearchTerm(term);
         if (term === "") {
             setFilteredCurrencies([]);
+            if (onClear) onClear();
         } else {
             const filtered = currencies.filter((currency) =>
                 currency.name.toLowerCase().includes(term) ||
@@ -43,6 +45,12 @@ const CurrencySearch = ({ onSelectCurrency, selectedCurrency }: CurrencySearchPr
         setFilteredCurrencies([]);
     };
 
+    const handleClear = () => {
+        setSearchTerm("");
+        setFilteredCurrencies([]);
+        if (onClear) onClear();
+    };
+
     return (
         <div>
             <input
@@ -52,22 +60,29 @@ const CurrencySearch = ({ onSelectCurrency, selectedCurrency }: CurrencySearchPr
                 placeholder="Search for a currency..."
                 className="border p-2 w-60"
             />
-            {searchTerm && filteredCurrencies.length > 0 && (
-                <ul className="absolute bg-white bg-opacity-100 border border-gray-300 w-60 max-h-60 overflow-auto">
-                    {filteredCurrencies.map((currency, index) => (
-                        <li
-                            key={currency.code}
-                            className={`p-2 cursor-pointer ${highlightedIndex === index ? "bg-gray-200" : ""
-                                }`}
-                            onClick={() => handleClick(currency)}
-                            onMouseEnter={() => setHighlightedIndex(index)}
-                        >
-                            {currency.name} ({currency.code})
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </div>
+            <button
+                onClick={handleClear}
+                className="text-gray-700 border p-2 cursor-pointer hover:bg-gray-200 transition "
+            >
+                Clear
+            </button>
+            {
+                searchTerm && filteredCurrencies.length > 0 && (
+                    <ul className="absolute bg-white bg-opacity-100 border border-gray-300 w-60 max-h-60 overflow-auto">
+                        {filteredCurrencies.map((currency, index) => (
+                            <li
+                                key={currency.code}
+                                className={`p-2 cursor-pointer ${highlightedIndex === index ? "bg-gray-200" : ""}`}
+                                onClick={() => handleClick(currency)}
+                                onMouseEnter={() => setHighlightedIndex(index)}
+                            >
+                                {currency.name} ({currency.code})
+                            </li>
+                        ))}
+                    </ul>
+                )
+            }
+        </div >
     );
 };
 

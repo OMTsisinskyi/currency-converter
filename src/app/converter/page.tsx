@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { convertCurrency } from "@/lib/currencyApi";
 import BackButton from "@/components/BackButton";
 import CurrencySearch from "@/components/CurrencySearch";
@@ -12,9 +12,15 @@ export default function ConverterPage() {
     const [toCurrency, setToCurrency] = useState<string>("");
     const [result, setResult] = useState<number | null>(null);
 
+    useEffect(() => {
+        setResult(null);
+    }, [amount]);
+
     const handleConvert = async () => {
+        console.log(fromCurrency, toCurrency, amount);
+
         if (!fromCurrency || !toCurrency || amount <= 0) {
-            console.error("Please select both currencies and enter a valid amount.");
+            alert("Please select both currencies and enter a valid amount.");
             return;
         }
 
@@ -34,6 +40,16 @@ export default function ConverterPage() {
         setToCurrency(currency);
     };
 
+    const handleClearFromCurrency = () => {
+        setFromCurrency("");
+        setResult(null);
+    };
+
+    const handleClearToCurrency = () => {
+        setToCurrency("");
+        setResult(null);
+    }
+
     const swapCurrencies = () => {
         setFromCurrency(toCurrency);
         setToCurrency(fromCurrency);
@@ -44,27 +60,28 @@ export default function ConverterPage() {
     return (
         <div className="p-6">
             <BackButton />
-            <h1 className="text-2xl font-bold text-center">Конвертер валют</h1>
+            <h1 className="text-2xl font-bold text-center">Currency converter</h1>
             <div className="mt-4">
                 <div>
-                    <label className="block mb-2">Сума</label>
+                    <label className="block text-lg mb-2">Amount:</label>
                     <input
                         value={amount}
                         onChange={(e) => setAmount(Number(e.target.value))}
                         className="border p-2 w-full"
-                        placeholder="Введіть суму"
+                        placeholder="Enter the amount"
                     />
                 </div>
                 <div className="flex justify-around items-center mt-4">
                     <div>
-                        <label className="block mb-2 text-center">Виберіть валюту з</label>
+                        <label className="block mb-2 text-center">Select a currency from:</label>
                         <CurrencySearch
                             onSelectCurrency={handleSelectFromCurrency}
-                            selectedCurrency={fromCurrency} 
+                            selectedCurrency={fromCurrency}
+                            onClear={handleClearFromCurrency}
                         />
                     </div>
 
-            
+
                     <button
                         type="button"
                         onClick={swapCurrencies}
@@ -74,26 +91,26 @@ export default function ConverterPage() {
                     </button>
 
                     <div>
-                        <label className="block mb-2 text-center">Виберіть валюту до</label>
+                        <label className="block mb-2 text-center">Select a currency up to:</label>
                         <CurrencySearch
                             onSelectCurrency={handleSelectToCurrency}
-                            selectedCurrency={toCurrency} 
+                            selectedCurrency={toCurrency}
+                            onClear={handleClearToCurrency}
                         />
                     </div>
                 </div>
                 <div className="mt-9">
                     <button
                         onClick={handleConvert}
-                        className="bg-blue-500 text-white p-2 w-full"
-                        disabled={!fromCurrency || !toCurrency || amount <= 0}
+                        className="bg-blue-500 text-white p-2 w-full hover:bg-blue-600 transition"
                     >
-                        Перевести
+                        Convert
                     </button>
                 </div>
 
                 {result !== null && (
                     <div className="mt-4 p-4 bg-light border rounded shadow-sm">
-                        <p className="font-bold text-lg">Результат: <span >{amount} {fromCurrency} = {result} {toCurrency} </span></p>
+                        <p className="font-bold text-lg">Result: <span >{amount} {fromCurrency} = {result} {toCurrency} </span></p>
                     </div>
                 )}
 
